@@ -37,7 +37,7 @@ fun ProfileScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "CivicLink",
+                        text = "Socio",
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 24.sp,
@@ -186,7 +186,7 @@ fun ProfileScreen(
                     ProfileMenuItem(
                         icon = Icons.Default.Info, 
                         iconTint = MaterialTheme.colorScheme.tertiary,
-                        title = "About CivicLink", 
+                        title = "About Socio", 
                         showDivider = true
                     )
                     ProfileMenuItem(

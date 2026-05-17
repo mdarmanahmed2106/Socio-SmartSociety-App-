@@ -59,7 +59,7 @@ fun ReportIssueScreen(
         topBar = {
             TopAppBar(
                 title = { 
-                    Text("CivicLink", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) 
+                    Text("Socio", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) 
                 },
                 navigationIcon = {
                     IconButton(onClick = {
