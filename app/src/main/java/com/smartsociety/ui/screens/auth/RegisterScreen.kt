@@ -44,7 +44,7 @@ fun RegisterScreen(
     ) {
         Spacer(modifier = Modifier.height(48.dp))
         Text(
-            text = "Join SmartSociety",
+            text = "Join Socio",
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.primary
         )

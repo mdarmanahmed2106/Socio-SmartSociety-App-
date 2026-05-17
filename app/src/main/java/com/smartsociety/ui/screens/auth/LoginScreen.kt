@@ -42,7 +42,7 @@ fun LoginScreen(
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "Log in to your SmartSociety account",
+            text = "Log in to your Socio account",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 32.dp)
