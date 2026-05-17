@@ -31,12 +31,14 @@ fun DashboardScreen(
     userName: String,
     userApartment: String,
     userAddress: String,
-    complaints: List<Complaint>,
+    complaintState: com.smartsociety.viewmodel.ComplaintState,
     onReportClick: () -> Unit,
     onComplaintClick: (Complaint) -> Unit,
+    onMyComplaintsClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
+    val complaints = (complaintState as? com.smartsociety.viewmodel.ComplaintState.Success)?.complaints ?: emptyList()
     Scaffold(
         bottomBar = {
             SSBottomNavigation(
@@ -45,7 +47,7 @@ fun DashboardScreen(
                     when (route) {
                         "notifications" -> onNotificationsClick()
                         "profile" -> onProfileClick()
-                        "my_complaints" -> {} 
+                        "my_complaints" -> onMyComplaintsClick()
                     }
                 }
             )
@@ -137,7 +139,7 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     QuickActionCard(Modifier.weight(1f), "Report Issue", Icons.Rounded.ReportProblem, ActionTeal, onReportClick)
-                    QuickActionCard(Modifier.weight(1f), "My Complaints", Icons.AutoMirrored.Rounded.ListAlt, ActionIndigo, {})
+                    QuickActionCard(Modifier.weight(1f), "My Complaints", Icons.AutoMirrored.Rounded.ListAlt, ActionIndigo, onMyComplaintsClick)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -156,6 +158,15 @@ fun DashboardScreen(
                     StatCardSmall(Modifier.weight(1f), "In Progress", complaints.count { it.status == "In Progress" }.toString(), Color(0xFFFFB300))
                     StatCardSmall(Modifier.weight(1f), "Resolved", complaints.count { it.status == "Resolved" }.toString(), Color(0xFF00E096))
                 }
+                
+                if (complaintState is com.smartsociety.viewmodel.ComplaintState.Error) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Error: ${(complaintState as com.smartsociety.viewmodel.ComplaintState.Error).message}",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
 
             // Recent Complaints
@@ -167,7 +178,7 @@ fun DashboardScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text("Recent Complaints", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    TextButton(onClick = {}) {
+                    TextButton(onClick = onMyComplaintsClick) {
                         Text("View All", color = MaterialTheme.colorScheme.primary)
                     }
                 }

@@ -36,6 +36,15 @@ class AuthViewModel : ViewModel() {
     fun login(email: String, pass: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
+            
+            // Mock Admin Login
+            if (email == "admin@society.com" && pass == "admin123") {
+                _authState.value = AuthState.Authenticated(
+                    User(id = "admin_id", name = "Administrator", email = email)
+                )
+                return@launch
+            }
+            
             try {
                 val result = auth.signInWithEmailAndPassword(email, pass).await()
                 val firebaseUser = result.user
@@ -73,6 +82,14 @@ class AuthViewModel : ViewModel() {
     }
 
     fun logout() {
+        if (_authState.value is AuthState.Authenticated) {
+            val user = (_authState.value as AuthState.Authenticated).user
+            if (user.id == "admin_id") {
+                _authState.value = AuthState.Idle
+                return
+            }
+        }
+        
         auth.signOut()
         _authState.value = AuthState.Idle
     }

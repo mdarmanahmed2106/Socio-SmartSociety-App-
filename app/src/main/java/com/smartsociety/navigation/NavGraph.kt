@@ -1,6 +1,7 @@
 package com.smartsociety.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,6 +15,7 @@ import com.smartsociety.ui.screens.auth.RegisterScreen
 import com.smartsociety.ui.screens.dashboard.*
 import com.smartsociety.ui.screens.profile.NotificationsScreen
 import com.smartsociety.ui.screens.profile.ProfileScreen
+import com.smartsociety.viewmodel.AdminViewModel
 import com.smartsociety.viewmodel.AuthViewModel
 import com.smartsociety.viewmodel.ComplaintViewModel
 import com.smartsociety.viewmodel.ComplaintState
@@ -24,22 +26,66 @@ fun SmartSocietyNavGraph() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val complaintViewModel: ComplaintViewModel = viewModel()
+    val adminViewModel: AdminViewModel = viewModel()
 
     val authState by authViewModel.authState.collectAsState()
     val complaintState by complaintViewModel.complaintsState.collectAsState()
+    val adminComplaintState by adminViewModel.complaintsState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated) {
+            val user = (authState as AuthState.Authenticated).user
+            if (user.id != "admin_id") {
+                complaintViewModel.fetchComplaints()
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "splash"
     ) {
+        composable("splash") {
+            com.smartsociety.ui.screens.SplashScreen(
+                onTimeout = {
+                    if (authState is AuthState.Authenticated) {
+                        val user = (authState as AuthState.Authenticated).user
+                        if (user.id == "admin_id") {
+                            navController.navigate("admin_dashboard") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate("dashboard") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                        }
+                    } else {
+                        navController.navigate("login") {
+                            popUpTo("splash") { inclusive = true }
+                        }
+                    }
+                }
+            )
+        }
+
         composable("login") {
             LoginScreen(
                 onLoginClick = { email, pass -> authViewModel.login(email, pass) },
-                onRegisterClick = { navController.navigate("register") }
+                onRegisterClick = { navController.navigate("register") },
+                authState = authState
             )
-            if (authState is AuthState.Authenticated) {
-                navController.navigate("dashboard") {
-                    popUpTo("login") { inclusive = true }
+            LaunchedEffect(authState) {
+                if (authState is AuthState.Authenticated) {
+                    val user = (authState as AuthState.Authenticated).user
+                    if (user.id == "admin_id") {
+                        navController.navigate("admin_dashboard") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate("dashboard") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }
                 }
             }
         }
@@ -49,28 +95,55 @@ fun SmartSocietyNavGraph() {
                 onRegisterClick = { name, email, pass, apartment, address -> 
                     authViewModel.register(name, email, pass, apartment, address) 
                 },
-                onLoginClick = { navController.navigate("login") }
+                onLoginClick = { navController.navigate("login") },
+                authState = authState
             )
-            if (authState is AuthState.Authenticated) {
-                navController.navigate("dashboard") {
-                    popUpTo("register") { inclusive = true }
+            LaunchedEffect(authState) {
+                if (authState is AuthState.Authenticated) {
+                    val user = (authState as AuthState.Authenticated).user
+                    if (user.id == "admin_id") {
+                        navController.navigate("admin_dashboard") {
+                            popUpTo("register") { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate("dashboard") {
+                            popUpTo("register") { inclusive = true }
+                        }
+                    }
                 }
             }
         }
 
         composable("dashboard") {
             val user = (authState as? AuthState.Authenticated)?.user
+            
             val complaints = (complaintState as? ComplaintState.Success)?.complaints ?: emptyList()
             
             DashboardScreen(
                 userName = user?.name ?: "Resident",
                 userApartment = user?.apartment ?: "",
                 userAddress = user?.address ?: "",
-                complaints = complaints,
+                complaintState = complaintState,
                 onReportClick = { navController.navigate("report_issue") },
                 onComplaintClick = { complaint -> navController.navigate("complaint_detail/${complaint.id}") },
+                onMyComplaintsClick = { navController.navigate("my_complaints") },
                 onNotificationsClick = { navController.navigate("notifications") },
                 onProfileClick = { navController.navigate("profile") }
+            )
+        }
+
+        composable("admin_dashboard") {
+            AdminDashboardScreen(
+                adminComplaintState = adminComplaintState,
+                onLogoutClick = {
+                    authViewModel.logout()
+                    navController.navigate("login") {
+                        popUpTo("admin_dashboard") { inclusive = true }
+                    }
+                },
+                onComplaintStatusChange = { complaintId, newStatus ->
+                    adminViewModel.updateComplaintStatus(complaintId, newStatus)
+                }
             )
         }
 

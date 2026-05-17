@@ -19,11 +19,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.smartsociety.ui.components.SSPrimaryButton
 import com.smartsociety.ui.components.SSTextField
+import com.smartsociety.viewmodel.AuthState
 
 @Composable
 fun RegisterScreen(
     onRegisterClick: (String, String, String, String, String) -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    authState: AuthState = AuthState.Idle
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -99,11 +101,19 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        if (authState is AuthState.Error) {
+            Text(
+                text = authState.message,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+
         SSPrimaryButton(
-            text = "Register",
+            text = if (authState is AuthState.Loading) "Registering..." else "Register",
             onClick = { 
                 if (password == confirmPassword) {
-                    onRegisterClick(name, email, password, apartment, address)
+                    onRegisterClick(name.trim(), email.trim(), password.trim(), apartment.trim(), address.trim())
                 }
             }
         )

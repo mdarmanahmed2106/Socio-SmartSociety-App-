@@ -8,6 +8,8 @@ import com.smartsociety.data.model.Complaint
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
+import kotlinx.coroutines.channels.awaitClose
+
 object FirebaseManager {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
@@ -73,11 +75,88 @@ object FirebaseManager {
         }
     }
 
+    fun getComplaintsFlow(): kotlinx.coroutines.flow.Flow<List<Complaint>> = kotlinx.coroutines.flow.callbackFlow {
+        val userId = getCurrentUserId()
+        if (userId == null) {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
+        val listener = firestore.collection("complaints")
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val complaints = snapshot.documents.map { doc ->
+                        Complaint(
+                            id = doc.id,
+                            userId = doc.getString("userId") ?: "",
+                            title = doc.getString("title") ?: "",
+                            description = doc.getString("description") ?: "",
+                            category = doc.getString("category") ?: "",
+                            status = doc.getString("status") ?: "Open",
+                            location = doc.getString("location") ?: "",
+                            imageUri = doc.getString("imageUrl") ?: "",
+                            timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis()
+                        )
+                    }.sortedByDescending { it.timestamp }
+                    trySend(complaints)
+                }
+            }
+        awaitClose { listener.remove() }
+    }
+
+    // Admin Flow
+    fun getAllComplaintsFlow(): kotlinx.coroutines.flow.Flow<List<Complaint>> = kotlinx.coroutines.flow.callbackFlow {
+        val listener = firestore.collection("complaints")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val complaints = snapshot.documents.map { doc ->
+                        Complaint(
+                            id = doc.id,
+                            userId = doc.getString("userId") ?: "",
+                            title = doc.getString("title") ?: "",
+                            description = doc.getString("description") ?: "",
+                            category = doc.getString("category") ?: "",
+                            status = doc.getString("status") ?: "Open",
+                            location = doc.getString("location") ?: "",
+                            imageUri = doc.getString("imageUrl") ?: "",
+                            timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis()
+                        )
+                    }.sortedByDescending { it.timestamp }
+                    trySend(complaints)
+                }
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun updateComplaintStatus(complaintId: String, newStatus: String) {
+        firestore.collection("complaints").document(complaintId)
+            .update("status", newStatus).await()
+    }
+
     // Storage
     private suspend fun uploadImage(uri: Uri): String {
-        val fileName = UUID.randomUUID().toString()
-        val ref = storage.reference.child("complaints/$fileName")
-        ref.putFile(uri).await()
-        return ref.downloadUrl.await().toString()
+        return try {
+            val fileName = UUID.randomUUID().toString()
+            val ref = storage.reference.child("complaints/$fileName")
+            
+            // Wait for the upload to complete
+            ref.putFile(uri).await()
+            
+            // Then get the download URL
+            val downloadUri = ref.downloadUrl.await()
+            downloadUri.toString()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw java.lang.Exception("${e.message}. Ensure Firebase Storage is initialized and rules allow uploads.")
+        }
     }
 }

@@ -17,11 +17,13 @@ import androidx.compose.ui.unit.sp
 import com.smartsociety.ui.components.SSPrimaryButton
 import com.smartsociety.ui.components.SSSecondaryButton
 import com.smartsociety.ui.components.SSTextField
+import com.smartsociety.viewmodel.AuthState
 
 @Composable
 fun LoginScreen(
     onLoginClick: (String, String) -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    authState: AuthState = AuthState.Idle
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -72,9 +74,17 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        if (authState is AuthState.Error) {
+            Text(
+                text = authState.message,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+
         SSPrimaryButton(
-            text = "Login",
-            onClick = { onLoginClick(email, password) }
+            text = if (authState is AuthState.Loading) "Logging in..." else "Login",
+            onClick = { onLoginClick(email.trim(), password.trim()) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
