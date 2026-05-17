@@ -110,7 +110,8 @@ class AuthViewModel(
                     )
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "Registration error")
+                e.printStackTrace()
+                _authState.value = AuthState.Error(e.localizedMessage ?: e.message ?: "Registration error")
             }
         }
     }

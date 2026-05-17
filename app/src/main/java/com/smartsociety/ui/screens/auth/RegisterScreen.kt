@@ -1,24 +1,36 @@
 package com.smartsociety.ui.screens.auth
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Apartment
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.smartsociety.ui.components.SSPrimaryButton
-import com.smartsociety.ui.components.SSTextField
+import androidx.compose.ui.unit.sp
 import com.smartsociety.viewmodel.AuthState
 
 @Composable
@@ -34,107 +46,431 @@ fun RegisterScreen(
     var address by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var localError by remember { mutableStateOf<String?>(null) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .drawBehind {
+                // Background Base Color #0e1513
+                drawRect(color = Color(0xFF0E1513))
+                
+                // Radial Gradient Top-Left: rgba(66, 222, 195, 0.15)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color(0xFF42DEC3).copy(alpha = 0.15f), Color.Transparent),
+                        center = Offset(0f, 0f),
+                        radius = size.width * 0.9f
+                    ),
+                    center = Offset(0f, 0f),
+                    radius = size.width * 0.9f
+                )
+                
+                // Radial Gradient Bottom-Right: rgba(47, 63, 146, 0.15)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color(0xFF2F3F92).copy(alpha = 0.15f), Color.Transparent),
+                        center = Offset(size.width, size.height),
+                        radius = size.width * 0.9f
+                    ),
+                    center = Offset(size.width, size.height),
+                    radius = size.width * 0.9f
+                )
+            }
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
-        Text(
-            text = "Join Socio",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = "Create an account to start reporting issues",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(48.dp))
 
-        SSTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = "Full Name",
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SSTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = "Email Address",
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SSTextField(
-            value = phone,
-            onValueChange = { phone = it },
-            label = "Phone Number",
-            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SSTextField(
-            value = apartment,
-            onValueChange = { apartment = it },
-            label = "Apartment Number (e.g. B-402)",
-            leadingIcon = { Icon(Icons.Default.Apartment, contentDescription = null) }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SSTextField(
-            value = address,
-            onValueChange = { address = it },
-            label = "Society / Address",
-            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SSTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = "Password",
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-            visualTransformation = PasswordVisualTransformation()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SSTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = "Confirm Password",
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-            visualTransformation = PasswordVisualTransformation()
-        )
+            // Branding Section Logo
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .shadow(
+                        elevation = 24.dp,
+                        shape = RoundedCornerShape(24.dp),
+                        clip = false,
+                        ambientColor = Color(0xFF00C2A8).copy(alpha = 0.4f),
+                        spotColor = Color(0xFF00C2A8)
+                    )
+                    .background(Color(0xFF00C2A8), RoundedCornerShape(24.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = null,
+                    tint = Color(0xFF00382F),
+                    modifier = Modifier.size(40.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        if (authState is AuthState.Error) {
             Text(
-                text = authState.message,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 16.dp)
+                text = "Socio",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF42DEC3),
+                letterSpacing = (-0.5).sp
             )
-        }
 
-        SSPrimaryButton(
-            text = if (authState is AuthState.Loading) "Registering..." else "Register",
-            onClick = { 
-                if (password == confirmPassword) {
-                    onRegisterClick(name.trim(), email.trim(), password.trim(), phone.trim(), apartment.trim(), address.trim())
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Onboarding Header Left-Aligned
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+            ) {
+                Text(
+                    text = "Create Account",
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFDDE4E1),
+                    letterSpacing = (-0.5).sp
+                )
+                Text(
+                    text = "Join our community to start reporting issues.",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFBBCAC4).copy(alpha = 0.8f),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            // Glassmorphism Registration Card
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = 0.08f),
+                        shape = RoundedCornerShape(32.dp)
+                    )
+                    .background(
+                        color = Color(0x991A211F),
+                        shape = RoundedCornerShape(32.dp)
+                    )
+                    .padding(24.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Full Name Section
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "FULL NAME",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFDDE4E1).copy(alpha = 0.7f),
+                            letterSpacing = 1.5.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        SSAuthTextField(
+                            value = name,
+                            onValueChange = { 
+                                name = it
+                                localError = null
+                            },
+                            placeholder = "John Doe",
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    tint = Color(0xFF85948F)
+                                )
+                            }
+                        )
+                    }
+
+                    // Email Address Section
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "EMAIL ADDRESS",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFDDE4E1).copy(alpha = 0.7f),
+                            letterSpacing = 1.5.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        SSAuthTextField(
+                            value = email,
+                            onValueChange = { 
+                                email = it
+                                localError = null
+                            },
+                            placeholder = "name@example.com",
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Email,
+                                    contentDescription = null,
+                                    tint = Color(0xFF85948F)
+                                )
+                            }
+                        )
+                    }
+
+                    // Phone Number Section
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "PHONE NUMBER",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFDDE4E1).copy(alpha = 0.7f),
+                            letterSpacing = 1.5.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        SSAuthTextField(
+                            value = phone,
+                            onValueChange = { 
+                                phone = it
+                                localError = null
+                            },
+                            placeholder = "1234567890",
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Phone,
+                                    contentDescription = null,
+                                    tint = Color(0xFF85948F)
+                                )
+                            }
+                        )
+                    }
+
+                    // Apartment Number Section
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "APARTMENT NUMBER",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFDDE4E1).copy(alpha = 0.7f),
+                            letterSpacing = 1.5.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        SSAuthTextField(
+                            value = apartment,
+                            onValueChange = { 
+                                apartment = it
+                                localError = null
+                            },
+                            placeholder = "B-402",
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Apartment,
+                                    contentDescription = null,
+                                    tint = Color(0xFF85948F)
+                                )
+                            }
+                        )
+                    }
+
+                    // Society / Address Section
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "SOCIETY / ADDRESS",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFDDE4E1).copy(alpha = 0.7f),
+                            letterSpacing = 1.5.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        SSAuthTextField(
+                            value = address,
+                            onValueChange = { 
+                                address = it
+                                localError = null
+                            },
+                            placeholder = "Greenwood Residency",
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = null,
+                                    tint = Color(0xFF85948F)
+                                )
+                            }
+                        )
+                    }
+
+                    // Password Section
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "PASSWORD",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFDDE4E1).copy(alpha = 0.7f),
+                            letterSpacing = 1.5.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        SSAuthTextField(
+                            value = password,
+                            onValueChange = { 
+                                password = it
+                                localError = null
+                            },
+                            placeholder = "••••••••",
+                            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = Color(0xFF85948F)
+                                )
+                            },
+                            trailingIcon = {
+                                val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        tint = Color(0xFF85948F)
+                                    )
+                                }
+                            }
+                        )
+                    }
+
+                    // Confirm Password Section
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "CONFIRM PASSWORD",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFDDE4E1).copy(alpha = 0.7f),
+                            letterSpacing = 1.5.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        SSAuthTextField(
+                            value = confirmPassword,
+                            onValueChange = { 
+                                confirmPassword = it
+                                localError = null
+                            },
+                            placeholder = "••••••••",
+                            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = Color(0xFF85948F)
+                                )
+                            },
+                            trailingIcon = {
+                                val icon = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        tint = Color(0xFF85948F)
+                                    )
+                                }
+                            }
+                        )
+                    }
+
+                    // Validation Errors
+                    val displayedError = localError ?: (if (authState is AuthState.Error) authState.message else null)
+                    if (displayedError != null) {
+                        Text(
+                            text = displayedError,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+                    // Action Register Button
+                    Button(
+                        onClick = { 
+                            localError = null
+                            if (name.isBlank() || email.isBlank() || phone.isBlank() || apartment.isBlank() || address.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+                                localError = "All fields are required"
+                            } else if (password != confirmPassword) {
+                                localError = "Passwords do not match"
+                            } else if (password.length < 6) {
+                                localError = "Password must be at least 6 characters"
+                            } else {
+                                onRegisterClick(name.trim(), email.trim(), password.trim(), phone.trim(), apartment.trim(), address.trim())
+                            }
+                        },
+                        enabled = authState !is AuthState.Loading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF00C2A8),
+                            contentColor = Color(0xFF00382F),
+                            disabledContainerColor = Color(0xFF00C2A8).copy(alpha = 0.5f),
+                            disabledContentColor = Color(0xFF00382F).copy(alpha = 0.5f)
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .shadow(
+                                elevation = 16.dp,
+                                shape = RoundedCornerShape(16.dp),
+                                clip = false,
+                                ambientColor = Color(0xFF00C2A8).copy(alpha = 0.4f),
+                                spotColor = Color(0xFF00C2A8)
+                            )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = if (authState is AuthState.Loading) "Registering..." else "Register",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
+                            )
+                            if (authState !is AuthState.Loading) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForward,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Login Footer
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Already have an account?",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFFBBCAC4)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        TextButton(
+                            onClick = onLoginClick,
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(
+                                text = "Login",
+                                color = Color(0xFF42DEC3),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
                 }
             }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Already have an account? ", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(onClick = onLoginClick) {
-                Text("Login", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-            }
+            Spacer(modifier = Modifier.height(48.dp))
         }
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }

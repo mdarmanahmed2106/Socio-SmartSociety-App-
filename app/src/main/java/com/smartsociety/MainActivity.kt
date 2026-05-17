@@ -6,11 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.smartsociety.navigation.SocioNavGraph
 import com.smartsociety.ui.theme.SocioTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Handle the splash screen transition on Android 12+
+        installSplashScreen()
+        
         super.onCreate(savedInstanceState)
         setContent {
             SocioTheme {
