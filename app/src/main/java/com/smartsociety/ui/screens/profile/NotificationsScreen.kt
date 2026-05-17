@@ -14,11 +14,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smartsociety.data.model.Notification
 
+import com.smartsociety.ui.components.SSBottomNavigation
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsScreen(
     notifications: List<Notification>,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onDashboardClick: () -> Unit,
+    onMyComplaintsClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -32,6 +37,18 @@ fun NotificationsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
+            )
+        },
+        bottomBar = {
+            SSBottomNavigation(
+                currentRoute = "notifications",
+                onNavigate = { route ->
+                    when (route) {
+                        "dashboard" -> onDashboardClick()
+                        "my_complaints" -> onMyComplaintsClick()
+                        "profile" -> onProfileClick()
+                    }
+                }
             )
         }
     ) { padding ->

@@ -13,12 +13,17 @@ import androidx.compose.ui.unit.dp
 import com.smartsociety.data.model.Complaint
 import com.smartsociety.ui.components.SSTextField
 
+import com.smartsociety.ui.components.SSBottomNavigation
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyComplaintsScreen(
     complaints: List<Complaint>,
     onComplaintClick: (Complaint) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onDashboardClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -34,6 +39,18 @@ fun MyComplaintsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
+            )
+        },
+        bottomBar = {
+            SSBottomNavigation(
+                currentRoute = "my_complaints",
+                onNavigate = { route ->
+                    when (route) {
+                        "dashboard" -> onDashboardClick()
+                        "notifications" -> onNotificationsClick()
+                        "profile" -> onProfileClick()
+                    }
+                }
             )
         }
     ) { padding ->

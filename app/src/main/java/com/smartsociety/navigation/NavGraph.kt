@@ -46,6 +46,16 @@ fun SocioNavGraph() {
         }
     }
 
+    val navigateToTab: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo("dashboard") {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = "splash"
@@ -131,9 +141,9 @@ fun SocioNavGraph() {
                 complaintState = complaintState,
                 onReportClick = { navController.navigate("report_issue") },
                 onComplaintClick = { complaint -> navController.navigate("complaint_detail/${complaint.id}") },
-                onMyComplaintsClick = { navController.navigate("my_complaints") },
-                onNotificationsClick = { navController.navigate("notifications") },
-                onProfileClick = { navController.navigate("profile") }
+                onMyComplaintsClick = { navigateToTab("my_complaints") },
+                onNotificationsClick = { navigateToTab("notifications") },
+                onProfileClick = { navigateToTab("profile") }
             )
         }
 
@@ -179,7 +189,10 @@ fun SocioNavGraph() {
             MyComplaintsScreen(
                 complaints = complaints,
                 onComplaintClick = { complaint -> navController.navigate("complaint_detail/${complaint.id}") },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onDashboardClick = { navigateToTab("dashboard") },
+                onNotificationsClick = { navigateToTab("notifications") },
+                onProfileClick = { navigateToTab("profile") }
             )
         }
 
@@ -203,7 +216,10 @@ fun SocioNavGraph() {
             val list = (notificationsState as? NotificationState.Success)?.notifications ?: emptyList()
             NotificationsScreen(
                 notifications = list,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onDashboardClick = { navigateToTab("dashboard") },
+                onMyComplaintsClick = { navigateToTab("my_complaints") },
+                onProfileClick = { navigateToTab("profile") }
             )
         }
 
@@ -218,7 +234,10 @@ fun SocioNavGraph() {
                         navController.navigate("login") {
                             popUpTo("dashboard") { inclusive = true }
                         }
-                    }
+                    },
+                    onDashboardClick = { navigateToTab("dashboard") },
+                    onMyComplaintsClick = { navigateToTab("my_complaints") },
+                    onNotificationsClick = { navigateToTab("notifications") }
                 )
             }
         }

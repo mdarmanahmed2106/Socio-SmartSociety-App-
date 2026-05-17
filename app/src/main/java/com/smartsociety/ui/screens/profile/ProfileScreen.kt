@@ -25,12 +25,17 @@ import androidx.compose.ui.unit.sp
 import com.smartsociety.data.model.User
 import com.smartsociety.ui.components.SSCard
 
+import com.smartsociety.ui.components.SSBottomNavigation
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     user: User,
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    onDashboardClick: () -> Unit,
+    onMyComplaintsClick: () -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -47,6 +52,18 @@ fun ProfileScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
+            )
+        },
+        bottomBar = {
+            SSBottomNavigation(
+                currentRoute = "profile",
+                onNavigate = { route ->
+                    when (route) {
+                        "dashboard" -> onDashboardClick()
+                        "my_complaints" -> onMyComplaintsClick()
+                        "notifications" -> onNotificationsClick()
+                    }
+                }
             )
         }
     ) { padding ->
