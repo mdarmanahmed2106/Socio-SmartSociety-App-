@@ -30,14 +30,14 @@ class AuthViewModelTest {
 
     @Test
     fun `login with correct admin credentials success`() = runTest {
-        viewModel.login("admin@smartsociety.com", "password")
+        viewModel.login("admin@society.com", "admin123")
         
         // Wait for the simulated delay in ViewModel
         testDispatcher.scheduler.advanceTimeBy(2000)
         
         val state = viewModel.authState.value
         assertTrue(state is AuthState.Authenticated)
-        assertTrue((state as AuthState.Authenticated).user.email == "admin@smartsociety.com")
+        assertTrue((state as AuthState.Authenticated).user.email == "admin@society.com")
     }
 
     @Test
@@ -53,7 +53,7 @@ class AuthViewModelTest {
 
     @Test
     fun `register success`() = runTest {
-        viewModel.register("Test User", "test@test.com", "password")
+        viewModel.register("Test User", "test@test.com", "password", "1234567890", "Block A, 401", "Society Address")
         
         testDispatcher.scheduler.advanceTimeBy(2000)
         

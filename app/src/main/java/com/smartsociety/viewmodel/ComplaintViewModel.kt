@@ -31,10 +31,6 @@ class ComplaintViewModel : ViewModel() {
     private val _reportState = MutableStateFlow<ReportIssueState>(ReportIssueState.Idle)
     val reportState: StateFlow<ReportIssueState> = _reportState.asStateFlow()
 
-    init {
-        fetchComplaints()
-    }
-
     private var fetchJob: kotlinx.coroutines.Job? = null
 
     fun fetchComplaints() {

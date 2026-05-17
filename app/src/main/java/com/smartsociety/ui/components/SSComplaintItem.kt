@@ -8,11 +8,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smartsociety.data.model.Complaint
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun SSComplaintItem(
@@ -20,6 +24,15 @@ fun SSComplaintItem(
     onClick: (Complaint) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val formattedDate = remember(complaint.timestamp) {
+        try {
+            val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            sdf.format(Date(complaint.timestamp))
+        } catch (e: Exception) {
+            "Unknown Date"
+        }
+    }
+
     SSCard(modifier = modifier.clickable { onClick(complaint) }) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -46,7 +59,7 @@ fun SSComplaintItem(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Block B, 4th Floor", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(complaint.location.ifEmpty { "General Area" }, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.outline)
                     }
                 }
             }
@@ -57,7 +70,7 @@ fun SSComplaintItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SSStatusChip(complaint.status)
-                Text("Oct 24, 2023", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.outline)
+                Text(formattedDate, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.outline)
             }
         }
     }
