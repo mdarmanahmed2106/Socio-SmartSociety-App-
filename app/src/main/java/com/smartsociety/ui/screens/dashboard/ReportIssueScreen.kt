@@ -34,12 +34,14 @@ import coil.compose.rememberAsyncImagePainter
 import com.smartsociety.ui.components.*
 import com.smartsociety.ui.theme.*
 import android.net.Uri
+import com.smartsociety.viewmodel.ReportIssueState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportIssueScreen(
     onBackClick: () -> Unit,
-    onSubmitClick: (String, String, String, String, Uri?) -> Unit
+    onSubmitClick: (String, String, String, String, Uri?) -> Unit,
+    reportState: ReportIssueState
 ) {
     var title by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Water") }
@@ -219,8 +221,35 @@ fun ReportIssueScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(48.dp))
+            if (reportState is ReportIssueState.Error) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = "Error",
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = reportState.message,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
             
+            val isLoading = reportState is ReportIssueState.Loading
             Button(
                 onClick = { 
                     when (step) {
@@ -238,17 +267,27 @@ fun ReportIssueScreen(
                     contentColor = if (step == 3) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 enabled = when(step) {
-                    1 -> title.isNotEmpty() && description.isNotEmpty()
-                    else -> true
+                    1 -> title.isNotEmpty() && description.isNotEmpty() && !isLoading
+                    else -> !isLoading
                 }
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        if (step == 3) "Submit Report" else "Continue to ${if (step == 1) "Upload" else "Review"}",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(if (step == 3) Icons.Default.Check else Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                    if (isLoading && step == 3) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text("Submitting Report...", fontWeight = FontWeight.Bold)
+                    } else {
+                        Text(
+                            if (step == 3) "Submit Report" else "Continue to ${if (step == 1) "Upload" else "Review"}",
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(if (step == 3) Icons.Default.Check else Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                    }
                 }
             }
             

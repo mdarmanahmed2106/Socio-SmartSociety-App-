@@ -23,7 +23,7 @@ import com.smartsociety.viewmodel.AuthState
 
 @Composable
 fun RegisterScreen(
-    onRegisterClick: (String, String, String, String, String) -> Unit,
+    onRegisterClick: (String, String, String, String, String, String) -> Unit,
     onLoginClick: () -> Unit,
     authState: AuthState = AuthState.Idle
 ) {
@@ -70,6 +70,13 @@ fun RegisterScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         SSTextField(
+            value = phone,
+            onValueChange = { phone = it },
+            label = "Phone Number",
+            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        SSTextField(
             value = apartment,
             onValueChange = { apartment = it },
             label = "Apartment Number (e.g. B-402)",
@@ -113,7 +120,7 @@ fun RegisterScreen(
             text = if (authState is AuthState.Loading) "Registering..." else "Register",
             onClick = { 
                 if (password == confirmPassword) {
-                    onRegisterClick(name.trim(), email.trim(), password.trim(), apartment.trim(), address.trim())
+                    onRegisterClick(name.trim(), email.trim(), password.trim(), phone.trim(), apartment.trim(), address.trim())
                 }
             }
         )

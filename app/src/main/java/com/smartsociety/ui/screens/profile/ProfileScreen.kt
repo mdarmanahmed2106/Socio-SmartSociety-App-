@@ -120,7 +120,7 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "+1(555) 234-5678", // Mock phone as in design
+                        text = user.phone.ifEmpty { "Not Provided" },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline
                     )

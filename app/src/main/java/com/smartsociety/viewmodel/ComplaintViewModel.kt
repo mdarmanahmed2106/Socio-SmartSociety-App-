@@ -17,9 +17,19 @@ sealed class ComplaintState {
     data class Error(val message: String) : ComplaintState()
 }
 
+sealed class ReportIssueState {
+    object Idle : ReportIssueState()
+    object Loading : ReportIssueState()
+    object Success : ReportIssueState()
+    data class Error(val message: String) : ReportIssueState()
+}
+
 class ComplaintViewModel : ViewModel() {
     private val _complaintsState = MutableStateFlow<ComplaintState>(ComplaintState.Loading)
     val complaintsState: StateFlow<ComplaintState> = _complaintsState.asStateFlow()
+
+    private val _reportState = MutableStateFlow<ReportIssueState>(ReportIssueState.Idle)
+    val reportState: StateFlow<ReportIssueState> = _reportState.asStateFlow()
 
     init {
         fetchComplaints()
@@ -41,8 +51,13 @@ class ComplaintViewModel : ViewModel() {
         }
     }
 
+    fun resetReportState() {
+        _reportState.value = ReportIssueState.Idle
+    }
+
     fun reportIssue(title: String, desc: String, category: String, location: String, imageUri: Uri? = null) {
         viewModelScope.launch {
+            _reportState.value = ReportIssueState.Loading
             try {
                 val newComplaint = Complaint(
                     id = "",
@@ -54,9 +69,10 @@ class ComplaintViewModel : ViewModel() {
                     status = "Open"
                 )
                 FirebaseManager.submitComplaint(newComplaint, imageUri)
+                _reportState.value = ReportIssueState.Success
             } catch (e: Exception) {
                 e.printStackTrace()
-                _complaintsState.value = ComplaintState.Error("Submit Error: ${e.message}")
+                _reportState.value = ReportIssueState.Error("Submit Error: ${e.message}")
             }
         }
     }

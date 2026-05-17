@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.smartsociety.data.model.Complaint
+import com.smartsociety.data.model.User
+import com.smartsociety.data.model.Notification
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -29,6 +31,19 @@ object FirebaseManager {
             "createdAt" to System.currentTimeMillis()
         )
         firestore.collection("users").document(userId).set(userMap).await()
+    }
+
+    suspend fun getUserProfile(userId: String): User {
+        val doc = firestore.collection("users").document(userId).get().await()
+        return User(
+            id = userId,
+            name = doc.getString("name") ?: "",
+            email = doc.getString("email") ?: "",
+            phone = doc.getString("phone") ?: "",
+            apartment = doc.getString("apartment") ?: "",
+            address = doc.getString("address") ?: "",
+            profilePic = doc.getString("profilePic") ?: ""
+        )
     }
 
     // Firestore - Complaints
@@ -140,6 +155,57 @@ object FirebaseManager {
     suspend fun updateComplaintStatus(complaintId: String, newStatus: String) {
         firestore.collection("complaints").document(complaintId)
             .update("status", newStatus).await()
+    }
+
+    // Notifications
+    fun getNotificationsFlow(): kotlinx.coroutines.flow.Flow<List<Notification>> = kotlinx.coroutines.flow.callbackFlow {
+        val userId = getCurrentUserId()
+        if (userId == null) {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
+        val listener = firestore.collection("notifications")
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val list = snapshot.documents.map { doc ->
+                        Notification(
+                            id = doc.id,
+                            userId = doc.getString("userId") ?: "",
+                            title = doc.getString("title") ?: "",
+                            message = doc.getString("message") ?: "",
+                            isRead = doc.getBoolean("isRead") ?: false,
+                            timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis()
+                        )
+                    }.sortedByDescending { it.timestamp }
+                    trySend(list)
+                }
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun seedMockNotifications(userId: String) {
+        val mock1 = mapOf(
+            "userId" to userId,
+            "title" to "Welcome to SmartSociety!",
+            "message" to "We are thrilled to have you here. You can now start reporting complaints or monitoring community announcements.",
+            "isRead" to false,
+            "timestamp" to System.currentTimeMillis()
+        )
+        val mock2 = mapOf(
+            "userId" to userId,
+            "title" to "Maintenance Announcement",
+            "message" to "Please note that lift maintenance in Block B is scheduled for tomorrow between 10 AM and 1 PM.",
+            "isRead" to false,
+            "timestamp" to System.currentTimeMillis() - 3600000 // 1 hour ago
+        )
+        firestore.collection("notifications").add(mock1).await()
+        firestore.collection("notifications").add(mock2).await()
     }
 
     // Storage

@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is the admin
+    function isAdmin() {
+      return isAuthenticated() && request.auth.uid == 'admin_id';
+    }
+
+    match /complaints/{allPaths=**} {
+      // Anyone authenticated can upload/create
+      allow create: if isAuthenticated();
+      // Allow read to authenticated users to show evidence screenshots in dashboard
+      allow read: if isAuthenticated();
+      allow update, delete: if isAuthenticated() || isAdmin();
+    }
+  }
+}

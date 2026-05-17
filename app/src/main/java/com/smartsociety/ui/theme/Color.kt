@@ -23,6 +23,17 @@ val OnSurface = Color(0xFFDDE4E1)
 val SurfaceCard = Color(0xFF141926) // Level 1
 val SurfaceElevated = Color(0xFF1E2538) // Level 2
 
+val SurfaceContainerLowest = Color(0xFF0B0F1A)
+val SurfaceContainerLow = Color(0xFF141926)
+val SurfaceContainer = Color(0xFF1C2233)
+val SurfaceContainerHigh = Color(0xFF242E47)
+val SurfaceContainerHighest = Color(0xFF2E3B5C)
+
+val Tertiary = Color(0xFFFFB6A0)
+val OnTertiary = Color(0xFF5E1700)
+val TertiaryContainer = Color(0xFFFF8D69)
+val OnTertiaryContainer = Color(0xFF752509)
+
 val SurfaceVariant = Color(0xFF141926) // Map to Level 1 for standard cards
 val OnSurfaceVariant = Color(0xFFBBCAC4)
 

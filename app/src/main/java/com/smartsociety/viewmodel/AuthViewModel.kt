@@ -27,9 +27,16 @@ class AuthViewModel : ViewModel() {
         // Check if user is already logged in
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            _authState.value = AuthState.Authenticated(
-                User(id = currentUser.uid, name = currentUser.displayName ?: "Resident", email = currentUser.email ?: "")
-            )
+            viewModelScope.launch {
+                try {
+                    val user = FirebaseManager.getUserProfile(currentUser.uid)
+                    _authState.value = AuthState.Authenticated(user)
+                } catch (e: Exception) {
+                    _authState.value = AuthState.Authenticated(
+                        User(id = currentUser.uid, name = currentUser.displayName ?: "Resident", email = currentUser.email ?: "")
+                    )
+                }
+            }
         }
     }
 
@@ -49,9 +56,8 @@ class AuthViewModel : ViewModel() {
                 val result = auth.signInWithEmailAndPassword(email, pass).await()
                 val firebaseUser = result.user
                 if (firebaseUser != null) {
-                    _authState.value = AuthState.Authenticated(
-                        User(id = firebaseUser.uid, name = firebaseUser.displayName ?: "Resident", email = email)
-                    )
+                    val user = FirebaseManager.getUserProfile(firebaseUser.uid)
+                    _authState.value = AuthState.Authenticated(user)
                 } else {
                     _authState.value = AuthState.Error("Login failed")
                 }
@@ -61,7 +67,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun register(name: String, email: String, pass: String, apartment: String, address: String) {
+    fun register(name: String, email: String, pass: String, phone: String, apartment: String, address: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
@@ -69,10 +75,12 @@ class AuthViewModel : ViewModel() {
                 val firebaseUser = result.user
                 if (firebaseUser != null) {
                     // Save additional info to Firestore
-                    FirebaseManager.saveUserProfile(firebaseUser.uid, name, email, "", apartment, address)
+                    FirebaseManager.saveUserProfile(firebaseUser.uid, name, email, phone, apartment, address)
+                    // Seed mock notifications
+                    FirebaseManager.seedMockNotifications(firebaseUser.uid)
                     
                     _authState.value = AuthState.Authenticated(
-                        User(id = firebaseUser.uid, name = name, email = email, apartment = apartment, address = address)
+                        User(id = firebaseUser.uid, name = name, email = email, phone = phone, apartment = apartment, address = address)
                     )
                 }
             } catch (e: Exception) {

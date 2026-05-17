@@ -20,6 +20,8 @@ import com.smartsociety.viewmodel.AuthViewModel
 import com.smartsociety.viewmodel.ComplaintViewModel
 import com.smartsociety.viewmodel.ComplaintState
 import com.smartsociety.viewmodel.AuthState
+import com.smartsociety.viewmodel.NotificationViewModel
+import com.smartsociety.viewmodel.NotificationState
 
 @Composable
 fun SmartSocietyNavGraph() {
@@ -27,16 +29,19 @@ fun SmartSocietyNavGraph() {
     val authViewModel: AuthViewModel = viewModel()
     val complaintViewModel: ComplaintViewModel = viewModel()
     val adminViewModel: AdminViewModel = viewModel()
+    val notificationViewModel: NotificationViewModel = viewModel()
 
     val authState by authViewModel.authState.collectAsState()
     val complaintState by complaintViewModel.complaintsState.collectAsState()
     val adminComplaintState by adminViewModel.complaintsState.collectAsState()
+    val notificationsState by notificationViewModel.notificationsState.collectAsState()
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Authenticated) {
             val user = (authState as AuthState.Authenticated).user
             if (user.id != "admin_id") {
                 complaintViewModel.fetchComplaints()
+                notificationViewModel.fetchNotifications()
             }
         }
     }
@@ -92,8 +97,8 @@ fun SmartSocietyNavGraph() {
 
         composable("register") {
             RegisterScreen(
-                onRegisterClick = { name, email, pass, apartment, address -> 
-                    authViewModel.register(name, email, pass, apartment, address) 
+                onRegisterClick = { name, email, pass, phone, apartment, address -> 
+                    authViewModel.register(name, email, pass, phone, apartment, address) 
                 },
                 onLoginClick = { navController.navigate("login") },
                 authState = authState
@@ -148,12 +153,24 @@ fun SmartSocietyNavGraph() {
         }
 
         composable("report_issue") {
+            val reportState by complaintViewModel.reportState.collectAsState()
+
+            LaunchedEffect(Unit) {
+                complaintViewModel.resetReportState()
+            }
+
+            LaunchedEffect(reportState) {
+                if (reportState is com.smartsociety.viewmodel.ReportIssueState.Success) {
+                    navController.popBackStack()
+                }
+            }
+
             ReportIssueScreen(
                 onBackClick = { navController.popBackStack() },
                 onSubmitClick = { title, cat, desc, loc, uri -> 
                     complaintViewModel.reportIssue(title, desc, cat, loc, uri)
-                    navController.popBackStack()
-                }
+                },
+                reportState = reportState
             )
         }
 
@@ -183,8 +200,9 @@ fun SmartSocietyNavGraph() {
         }
 
         composable("notifications") {
+            val list = (notificationsState as? NotificationState.Success)?.notifications ?: emptyList()
             NotificationsScreen(
-                notifications = emptyList(), // Dummy
+                notifications = list,
                 onBackClick = { navController.popBackStack() }
             )
         }
