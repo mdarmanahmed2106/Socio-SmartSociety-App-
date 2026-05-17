@@ -39,4 +39,14 @@ class NotificationViewModel : ViewModel() {
                 }
         }
     }
+
+    fun markAllAsRead() {
+        viewModelScope.launch {
+            try {
+                FirebaseManager.markAllNotificationsAsRead()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }

@@ -153,8 +153,48 @@ object FirebaseManager {
     }
 
     suspend fun updateComplaintStatus(complaintId: String, newStatus: String) {
-        firestore.collection("complaints").document(complaintId)
-            .update("status", newStatus).await()
+        val docRef = firestore.collection("complaints").document(complaintId)
+        val snapshot = docRef.get().await()
+        val userId = snapshot.getString("userId") ?: ""
+        val complaintTitle = snapshot.getString("title") ?: "Complaint"
+        
+        docRef.update("status", newStatus).await()
+        
+        if (userId.isNotEmpty()) {
+            val title = when (newStatus) {
+                "In Progress" -> "Issue In Progress"
+                "Resolved" -> "Issue Resolved"
+                else -> "Issue Status Update"
+            }
+            val message = when (newStatus) {
+                "In Progress" -> "Your report for '$complaintTitle' is now in progress. A technician has been assigned."
+                "Resolved" -> "Your report for '$complaintTitle' has been marked as resolved. Thank you for your patience!"
+                else -> "Your report for '$complaintTitle' has been updated to $newStatus."
+            }
+            val notificationData = mapOf(
+                "userId" to userId,
+                "title" to title,
+                "message" to message,
+                "isRead" to false,
+                "timestamp" to System.currentTimeMillis()
+            )
+            firestore.collection("notifications").add(notificationData).await()
+        }
+    }
+
+    suspend fun markAllNotificationsAsRead() {
+        val userId = getCurrentUserId() ?: return
+        val snapshot = firestore.collection("notifications")
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("isRead", false)
+            .get().await()
+        if (!snapshot.isEmpty) {
+            firestore.runBatch { batch ->
+                for (doc in snapshot.documents) {
+                    batch.update(doc.reference, "isRead", true)
+                }
+            }.await()
+        }
     }
 
     // Notifications

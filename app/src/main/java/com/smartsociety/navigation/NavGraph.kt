@@ -219,7 +219,8 @@ fun SocioNavGraph() {
                 onBackClick = { navController.popBackStack() },
                 onDashboardClick = { navigateToTab("dashboard") },
                 onMyComplaintsClick = { navigateToTab("my_complaints") },
-                onProfileClick = { navigateToTab("profile") }
+                onProfileClick = { navigateToTab("profile") },
+                onMarkAllAsReadClick = { notificationViewModel.markAllAsRead() }
             )
         }
 
