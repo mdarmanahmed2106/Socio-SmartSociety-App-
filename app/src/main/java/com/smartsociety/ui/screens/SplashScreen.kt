@@ -250,7 +250,7 @@ fun SplashScreen(
             Box(modifier = Modifier.width(32.dp).height(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "SMART SOCIETY SYSTEMS",
+                text = "SOCIO",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 2.sp,

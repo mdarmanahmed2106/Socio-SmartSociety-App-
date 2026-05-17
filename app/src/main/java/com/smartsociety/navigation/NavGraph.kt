@@ -24,7 +24,7 @@ import com.smartsociety.viewmodel.NotificationViewModel
 import com.smartsociety.viewmodel.NotificationState
 
 @Composable
-fun SmartSocietyNavGraph() {
+fun SocioNavGraph() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val complaintViewModel: ComplaintViewModel = viewModel()
