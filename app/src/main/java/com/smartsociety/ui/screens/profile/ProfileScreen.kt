@@ -35,7 +35,8 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit,
     onDashboardClick: () -> Unit,
     onMyComplaintsClick: () -> Unit,
-    onNotificationsClick: () -> Unit
+    onNotificationsClick: () -> Unit,
+    unreadNotificationsCount: Int = 0
 ) {
     Scaffold(
         topBar = {
@@ -63,7 +64,8 @@ fun ProfileScreen(
                         "my_complaints" -> onMyComplaintsClick()
                         "notifications" -> onNotificationsClick()
                     }
-                }
+                },
+                unreadNotificationsCount = unreadNotificationsCount
             )
         }
     ) { padding ->

@@ -32,6 +32,7 @@ fun NotificationsScreen(
     onMarkAllAsReadClick: () -> Unit
 ) {
     val groupedNotifications = remember(notifications) { groupNotifications(notifications) }
+    val unreadCount = remember(notifications) { notifications.count { !it.isRead } }
 
     Scaffold(
         topBar = {
@@ -56,7 +57,8 @@ fun NotificationsScreen(
                         "my_complaints" -> onMyComplaintsClick()
                         "profile" -> onProfileClick()
                     }
-                }
+                },
+                unreadNotificationsCount = unreadCount
             )
         }
     ) { padding ->

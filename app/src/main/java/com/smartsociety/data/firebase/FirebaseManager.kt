@@ -7,6 +7,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.smartsociety.data.model.Complaint
 import com.smartsociety.data.model.User
 import com.smartsociety.data.model.Notification
+import com.smartsociety.data.model.Announcement
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -223,6 +224,81 @@ object FirebaseManager {
                             timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis()
                         )
                     }.sortedByDescending { it.timestamp }
+                    trySend(list)
+                }
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun sendBroadcastAnnouncement(title: String, message: String) {
+        val announcementRef = firestore.collection("announcements").document()
+        val announcementData = mapOf(
+            "title" to title,
+            "message" to message,
+            "timestamp" to System.currentTimeMillis()
+        )
+        firestore.collection("announcements").document(announcementRef.id).set(announcementData).await()
+
+        val snapshot = firestore.collection("users").get().await()
+        if (!snapshot.isEmpty) {
+            firestore.runBatch { batch ->
+                for (doc in snapshot.documents) {
+                    val userId = doc.id
+                    val notifRef = firestore.collection("notifications").document()
+                    val notifData = mapOf(
+                        "userId" to userId,
+                        "title" to "📢 Announcement: $title",
+                        "message" to message,
+                        "isRead" to false,
+                        "timestamp" to System.currentTimeMillis()
+                    )
+                    batch.set(notifRef, notifData)
+                }
+            }.await()
+        }
+    }
+
+    fun getAnnouncementsFlow(): kotlinx.coroutines.flow.Flow<List<Announcement>> = kotlinx.coroutines.flow.callbackFlow {
+        val listener = firestore.collection("announcements")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val list = snapshot.documents.map { doc ->
+                        Announcement(
+                            id = doc.id,
+                            title = doc.getString("title") ?: "",
+                            message = doc.getString("message") ?: "",
+                            timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis()
+                        )
+                    }.sortedByDescending { it.timestamp }
+                    trySend(list)
+                }
+            }
+        awaitClose { listener.remove() }
+    }
+
+    fun getAllResidentsFlow(): kotlinx.coroutines.flow.Flow<List<User>> = kotlinx.coroutines.flow.callbackFlow {
+        val listener = firestore.collection("users")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val list = snapshot.documents.map { doc ->
+                        User(
+                            id = doc.id,
+                            name = doc.getString("name") ?: "",
+                            email = doc.getString("email") ?: "",
+                            phone = doc.getString("phone") ?: "",
+                            apartment = doc.getString("apartment") ?: "",
+                            address = doc.getString("address") ?: "",
+                            profilePic = doc.getString("profilePic") ?: ""
+                        )
+                    }.sortedBy { it.name }
                     trySend(list)
                 }
             }

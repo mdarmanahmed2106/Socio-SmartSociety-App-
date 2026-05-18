@@ -23,7 +23,8 @@ fun MyComplaintsScreen(
     onBackClick: () -> Unit,
     onDashboardClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    unreadNotificationsCount: Int = 0
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -50,7 +51,8 @@ fun MyComplaintsScreen(
                         "notifications" -> onNotificationsClick()
                         "profile" -> onProfileClick()
                     }
-                }
+                },
+                unreadNotificationsCount = unreadNotificationsCount
             )
         }
     ) { padding ->

@@ -33,5 +33,11 @@ service cloud.firestore {
       allow create: if isAuthenticated(); // To allow seeding notifications during registration
       allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
+
+    // Announcements Collection
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
   }
 }

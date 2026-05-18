@@ -133,12 +133,15 @@ fun SocioNavGraph() {
             val user = (authState as? AuthState.Authenticated)?.user
             
             val complaints = (complaintState as? ComplaintState.Success)?.complaints ?: emptyList()
+            val notificationsList = (notificationsState as? NotificationState.Success)?.notifications ?: emptyList()
+            val unreadCount = notificationsList.count { !it.isRead }
             
             DashboardScreen(
                 userName = user?.name ?: "Resident",
                 userApartment = user?.apartment ?: "",
                 userAddress = user?.address ?: "",
                 complaintState = complaintState,
+                unreadNotificationsCount = unreadCount,
                 onReportClick = { navController.navigate("report_issue") },
                 onComplaintClick = { complaint -> navController.navigate("complaint_detail/${complaint.id}") },
                 onMyComplaintsClick = { navigateToTab("my_complaints") },
@@ -148,8 +151,13 @@ fun SocioNavGraph() {
         }
 
         composable("admin_dashboard") {
+            val residents by adminViewModel.residentsState.collectAsState()
+            val announcements by adminViewModel.announcementsState.collectAsState()
+
             AdminDashboardScreen(
                 adminComplaintState = adminComplaintState,
+                residentsList = residents,
+                announcementsList = announcements,
                 onLogoutClick = {
                     authViewModel.logout()
                     navController.navigate("login") {
@@ -158,6 +166,12 @@ fun SocioNavGraph() {
                 },
                 onComplaintStatusChange = { complaintId, newStatus ->
                     adminViewModel.updateComplaintStatus(complaintId, newStatus)
+                },
+                onSendAnnouncement = { title, message ->
+                    adminViewModel.sendAnnouncement(title, message)
+                },
+                onComplaintClick = { complaint ->
+                    navController.navigate("complaint_detail/${complaint.id}")
                 }
             )
         }
@@ -186,13 +200,16 @@ fun SocioNavGraph() {
 
         composable("my_complaints") {
             val complaints = (complaintState as? ComplaintState.Success)?.complaints ?: emptyList()
+            val notificationsList = (notificationsState as? NotificationState.Success)?.notifications ?: emptyList()
+            val unreadCount = notificationsList.count { !it.isRead }
             MyComplaintsScreen(
                 complaints = complaints,
                 onComplaintClick = { complaint -> navController.navigate("complaint_detail/${complaint.id}") },
                 onBackClick = { navController.popBackStack() },
                 onDashboardClick = { navigateToTab("dashboard") },
                 onNotificationsClick = { navigateToTab("notifications") },
-                onProfileClick = { navigateToTab("profile") }
+                onProfileClick = { navigateToTab("profile") },
+                unreadNotificationsCount = unreadCount
             )
         }
 
@@ -226,6 +243,8 @@ fun SocioNavGraph() {
 
         composable("profile") {
             val user = (authState as? AuthState.Authenticated)?.user
+            val notificationsList = (notificationsState as? NotificationState.Success)?.notifications ?: emptyList()
+            val unreadCount = notificationsList.count { !it.isRead }
             if (user != null) {
                 ProfileScreen(
                     user = user,
@@ -238,7 +257,8 @@ fun SocioNavGraph() {
                     },
                     onDashboardClick = { navigateToTab("dashboard") },
                     onMyComplaintsClick = { navigateToTab("my_complaints") },
-                    onNotificationsClick = { navigateToTab("notifications") }
+                    onNotificationsClick = { navigateToTab("notifications") },
+                    unreadNotificationsCount = unreadCount
                 )
             }
         }

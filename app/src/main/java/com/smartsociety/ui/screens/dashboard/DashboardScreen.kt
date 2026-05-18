@@ -1,8 +1,10 @@
 package com.smartsociety.ui.screens.dashboard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -32,6 +34,7 @@ fun DashboardScreen(
     userApartment: String,
     userAddress: String,
     complaintState: com.smartsociety.viewmodel.ComplaintState,
+    unreadNotificationsCount: Int = 0,
     onReportClick: () -> Unit,
     onComplaintClick: (Complaint) -> Unit,
     onMyComplaintsClick: () -> Unit,
@@ -49,7 +52,8 @@ fun DashboardScreen(
                         "profile" -> onProfileClick()
                         "my_complaints" -> onMyComplaintsClick()
                     }
-                }
+                },
+                unreadNotificationsCount = unreadNotificationsCount
             )
         },
         floatingActionButton = {
@@ -134,17 +138,48 @@ fun DashboardScreen(
                 }
             }
 
-            // Quick Actions Grid
+            // Quick Actions 2x2 Grid
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    QuickActionCard(Modifier.weight(1f), "Report Issue", Icons.Rounded.ReportProblem, ActionTeal, onReportClick)
-                    QuickActionCard(Modifier.weight(1f), "My Complaints", Icons.AutoMirrored.Rounded.ListAlt, ActionIndigo, onMyComplaintsClick)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    QuickActionCard(
+                        modifier = Modifier.weight(1f),
+                        title = "Report Issue",
+                        icon = Icons.Rounded.ReportProblem,
+                        containerColor = ActionTeal,
+                        onClick = onReportClick
+                    )
+                    QuickActionCard(
+                        modifier = Modifier.weight(1f),
+                        title = "My Complaints",
+                        icon = Icons.AutoMirrored.Rounded.ListAlt,
+                        containerColor = ActionIndigo,
+                        onClick = onMyComplaintsClick
+                    )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    QuickActionCard(Modifier.weight(1f), "Notifications", Icons.Rounded.Notifications, ActionSalmon, onNotificationsClick)
-                    QuickActionCard(Modifier.weight(1f), "Profile", Icons.Rounded.Person, ActionGrey, onProfileClick)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    QuickActionCard(
+                        modifier = Modifier.weight(1f),
+                        title = "Notifications",
+                        icon = Icons.Rounded.Notifications,
+                        containerColor = ActionSalmon,
+                        onClick = onNotificationsClick,
+                        badgeCount = unreadNotificationsCount
+                    )
+                    QuickActionCard(
+                        modifier = Modifier.weight(1f),
+                        title = "Profile",
+                        icon = Icons.Rounded.Person,
+                        containerColor = ActionGrey,
+                        onClick = onProfileClick
+                    )
                 }
             }
 
@@ -154,9 +189,9 @@ fun DashboardScreen(
                 Text("Overview", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatCardSmall(Modifier.weight(1f), "Total Raised", complaints.size.toString(), Color(0xFFBAC3FF))
-                    StatCardSmall(Modifier.weight(1f), "In Progress", complaints.count { it.status == "In Progress" }.toString(), Color(0xFFFFB300))
-                    StatCardSmall(Modifier.weight(1f), "Resolved", complaints.count { it.status == "Resolved" }.toString(), Color(0xFF00E096))
+                    StatCardSmall(Modifier.weight(1f), "Total Raised", complaints.size.toString(), Color(0xFFBAC3FF), Icons.Rounded.Assessment)
+                    StatCardSmall(Modifier.weight(1f), "In Progress", complaints.count { it.status == "In Progress" }.toString(), Color(0xFFFFB300), Icons.Rounded.Autorenew)
+                    StatCardSmall(Modifier.weight(1f), "Resolved", complaints.count { it.status == "Resolved" }.toString(), Color(0xFF00E096), Icons.Rounded.CheckCircle)
                 }
                 
                 if (complaintState is com.smartsociety.viewmodel.ComplaintState.Error) {
@@ -203,43 +238,128 @@ fun QuickActionCard(
     title: String,
     icon: ImageVector,
     containerColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    badgeCount: Int = 0
 ) {
     Surface(
         modifier = modifier
-            .height(140.dp)
-            .clickable(onClick = onClick),
+            .height(130.dp)
+            .clickable(onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(24.dp)
+            ),
         shape = RoundedCornerShape(24.dp),
         color = containerColor
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(icon, contentDescription = null, tint = Color.White)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+                
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
             }
-            Text(title, style = MaterialTheme.typography.titleMedium, color = Color.White, fontWeight = FontWeight.SemiBold)
+            
+            if (badgeCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 16.dp, end = 16.dp)
+                        .background(Color(0xFFFF3B30), CircleShape)
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = badgeCount.toString(),
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun StatCardSmall(modifier: Modifier, title: String, value: String, valueColor: Color) {
+fun StatCardSmall(
+    modifier: Modifier,
+    title: String,
+    value: String,
+    valueColor: Color,
+    icon: ImageVector
+) {
     Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer
+        modifier = modifier
+            .border(
+                width = 1.dp,
+                color = valueColor.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(20.dp)
+            ),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.7f)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(value, style = MaterialTheme.typography.headlineSmall, color = valueColor, fontWeight = FontWeight.Bold)
+        Column(
+            modifier = Modifier
+                .padding(14.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(valueColor.copy(alpha = 0.12f), RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = valueColor,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
+                color = valueColor,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }

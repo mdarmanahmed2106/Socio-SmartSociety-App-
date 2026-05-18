@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SSBottomNavigation(
     currentRoute: String,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    unreadNotificationsCount: Int = 0
 ) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.background,
@@ -44,7 +45,8 @@ fun SSBottomNavigation(
                     selected = currentRoute == "notifications",
                     onClick = { onNavigate("notifications") },
                     icon = Icons.Default.Notifications,
-                    label = "Updates"
+                    label = "Updates",
+                    badgeCount = unreadNotificationsCount
                 )
                 NavigationItem(
                     selected = currentRoute == "profile",
@@ -62,12 +64,27 @@ private fun RowScope.NavigationItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: ImageVector,
-    label: String
+    label: String,
+    badgeCount: Int = 0
 ) {
     NavigationBarItem(
         selected = selected,
         onClick = onClick,
-        icon = { Icon(icon, contentDescription = label) },
+        icon = {
+            if (badgeCount > 0) {
+                BadgedBox(
+                    badge = {
+                        Badge {
+                            Text(badgeCount.toString())
+                        }
+                    }
+                ) {
+                    Icon(icon, contentDescription = label)
+                }
+            } else {
+                Icon(icon, contentDescription = label)
+            }
+        },
         label = { Text(label, style = MaterialTheme.typography.labelMedium) },
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = MaterialTheme.colorScheme.onPrimary,

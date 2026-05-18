@@ -42,32 +42,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .drawBehind {
-                // Background Base Color #0e1513
-                drawRect(color = Color(0xFF0E1513))
-                
-                // Radial Gradient Top-Left: rgba(66, 222, 195, 0.15)
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(Color(0xFF42DEC3).copy(alpha = 0.15f), Color.Transparent),
-                        center = Offset(0f, 0f),
-                        radius = size.width * 0.9f
-                    ),
-                    center = Offset(0f, 0f),
-                    radius = size.width * 0.9f
-                )
-                
-                // Radial Gradient Bottom-Right: rgba(47, 63, 146, 0.15)
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(Color(0xFF2F3F92).copy(alpha = 0.15f), Color.Transparent),
-                        center = Offset(size.width, size.height),
-                        radius = size.width * 0.9f
-                    ),
-                    center = Offset(size.width, size.height),
-                    radius = size.width * 0.9f
-                )
-            }
+            .background(Color(0xFF0E1513))
     ) {
         Column(
             modifier = Modifier
@@ -82,13 +57,6 @@ fun LoginScreen(
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .shadow(
-                        elevation = 24.dp,
-                        shape = RoundedCornerShape(24.dp),
-                        clip = false,
-                        ambientColor = Color(0xFF00C2A8).copy(alpha = 0.4f),
-                        spotColor = Color(0xFF00C2A8)
-                    )
                     .background(Color(0xFF00C2A8), RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -257,13 +225,6 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
-                            .shadow(
-                                elevation = 16.dp,
-                                shape = RoundedCornerShape(16.dp),
-                                clip = false,
-                                ambientColor = Color(0xFF00C2A8).copy(alpha = 0.4f),
-                                spotColor = Color(0xFF00C2A8)
-                            )
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,

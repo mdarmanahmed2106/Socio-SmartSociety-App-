@@ -30,3 +30,10 @@ data class Notification(
     val timestamp: Long = System.currentTimeMillis(),
     val isRead: Boolean = false
 )
+
+data class Announcement(
+    val id: String = "",
+    val title: String = "",
+    val message: String = "",
+    val timestamp: Long = System.currentTimeMillis()
+)
