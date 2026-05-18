@@ -13,8 +13,8 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Hub
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -104,7 +104,7 @@ fun RegisterScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Share,
+                    imageVector = Icons.Default.Hub,
                     contentDescription = null,
                     tint = Color(0xFF00382F),
                     modifier = Modifier.size(40.dp)
@@ -151,11 +151,11 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
-                        color = Color.White.copy(alpha = 0.08f),
+                        color = Color(0xFF3C4A46).copy(alpha = 0.3f),
                         shape = RoundedCornerShape(32.dp)
                     )
                     .background(
-                        color = Color(0x991A211F),
+                        color = Color(0xFF161D1B).copy(alpha = 0.85f),
                         shape = RoundedCornerShape(32.dp)
                     )
                     .padding(24.dp)
