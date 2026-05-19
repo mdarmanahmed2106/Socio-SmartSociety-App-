@@ -128,7 +128,7 @@ fun DashboardScreen(
                         Icon(Icons.Default.Apartment, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            if (userAddress.isNotEmpty()) "$userAddress · $userApartment" else "Greenwood Estates · Block B · Unit 402",
+                            if (userAddress.isNotEmpty()) "$userAddress · $userApartment" else "Prestige · Block B · Unit 402",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)

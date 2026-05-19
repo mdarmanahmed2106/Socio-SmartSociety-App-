@@ -155,7 +155,7 @@ fun AdminDashboardScreen(
                             ) {
                                 item {
                                     Text(
-                                        text = "Greenwood Residency",
+                                        text = "Prestige",
                                         style = MaterialTheme.typography.headlineMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface
@@ -782,7 +782,7 @@ fun AnnouncementDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "This announcement will be delivered immediately to all Greenwood Residency residents.",
+                    text = "This announcement will be delivered immediately to all Prestige residents.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

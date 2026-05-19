@@ -39,6 +39,8 @@ import com.smartsociety.viewmodel.ReportIssueState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportIssueScreen(
+    userApartment: String = "",
+    userAddress: String = "",
     onBackClick: () -> Unit,
     onSubmitClick: (String, String, String, String, Uri?) -> Unit,
     reportState: ReportIssueState
@@ -46,7 +48,24 @@ fun ReportIssueScreen(
     var title by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Water") }
     var description by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("Building 4, Sector B, Apartment 402") }
+    
+    // Prefill location from the building number and address in profile
+    val defaultLocation = remember(userApartment, userAddress) {
+        if (userApartment.isNotEmpty() && userAddress.isNotEmpty()) {
+            "$userApartment, $userAddress"
+        } else if (userApartment.isNotEmpty()) {
+            userApartment
+        } else {
+            userAddress
+        }
+    }
+    
+    var location by remember { mutableStateOf(defaultLocation) }
+    
+    LaunchedEffect(defaultLocation) {
+        location = defaultLocation
+    }
+    
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var step by remember { mutableIntStateOf(1) }
 

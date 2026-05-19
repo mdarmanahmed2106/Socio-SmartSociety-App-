@@ -43,7 +43,7 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var apartment by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("Prestige") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var localError by remember { mutableStateOf<String?>(null) }
@@ -257,7 +257,7 @@ fun RegisterScreen(
                                 address = it
                                 localError = null
                             },
-                            placeholder = "Greenwood Residency",
+                            placeholder = "Prestige",
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.LocationOn,

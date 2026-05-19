@@ -161,7 +161,7 @@ fun ProfileScreen(
                 InfoCard(
                     modifier = Modifier.weight(1f),
                     label = "BLOCK",
-                    value = user.address.ifEmpty { "Evergreen" }
+                    value = user.address.ifEmpty { "Prestige" }
                 )
             }
 

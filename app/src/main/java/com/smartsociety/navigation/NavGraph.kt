@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.smartsociety.ui.screens.auth.LoginScreen
 import com.smartsociety.ui.screens.auth.RegisterScreen
+import com.smartsociety.data.model.User
 import com.smartsociety.ui.screens.dashboard.*
 import com.smartsociety.ui.screens.profile.NotificationsScreen
 import com.smartsociety.ui.screens.profile.ProfileScreen
@@ -178,6 +179,9 @@ fun SocioNavGraph() {
 
         composable("report_issue") {
             val reportState by complaintViewModel.reportState.collectAsState()
+            val user = (authState as? AuthState.Authenticated)?.user
+            val userApartment = user?.apartment ?: ""
+            val userAddress = user?.address ?: ""
 
             LaunchedEffect(Unit) {
                 complaintViewModel.resetReportState()
@@ -190,6 +194,8 @@ fun SocioNavGraph() {
             }
 
             ReportIssueScreen(
+                userApartment = userApartment,
+                userAddress = userAddress,
                 onBackClick = { navController.popBackStack() },
                 onSubmitClick = { title, cat, desc, loc, uri -> 
                     complaintViewModel.reportIssue(title, desc, cat, loc, uri)

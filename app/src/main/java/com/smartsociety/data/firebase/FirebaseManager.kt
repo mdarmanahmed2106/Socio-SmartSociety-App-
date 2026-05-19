@@ -313,15 +313,50 @@ object FirebaseManager {
             "isRead" to false,
             "timestamp" to System.currentTimeMillis()
         )
-        val mock2 = mapOf(
-            "userId" to userId,
-            "title" to "Maintenance Announcement",
-            "message" to "Please note that lift maintenance in Block B is scheduled for tomorrow between 10 AM and 1 PM.",
-            "isRead" to false,
-            "timestamp" to System.currentTimeMillis() - 3600000 // 1 hour ago
-        )
         firestore.collection("notifications").add(mock1).await()
-        firestore.collection("notifications").add(mock2).await()
+
+        try {
+            val latestAnnouncementSnapshot = firestore.collection("announcements")
+                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .await()
+
+            if (!latestAnnouncementSnapshot.isEmpty) {
+                val doc = latestAnnouncementSnapshot.documents.first()
+                val title = doc.getString("title") ?: ""
+                val message = doc.getString("message") ?: ""
+                val timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis()
+
+                val broadcastNotif = mapOf(
+                    "userId" to userId,
+                    "title" to "📢 Announcement: $title",
+                    "message" to message,
+                    "isRead" to false,
+                    "timestamp" to timestamp
+                )
+                firestore.collection("notifications").add(broadcastNotif).await()
+            } else {
+                val mock2 = mapOf(
+                    "userId" to userId,
+                    "title" to "Maintenance Announcement",
+                    "message" to "Please note that lift maintenance in Block B is scheduled for tomorrow between 10 AM and 1 PM.",
+                    "isRead" to false,
+                    "timestamp" to System.currentTimeMillis() - 3600000 // 1 hour ago
+                )
+                firestore.collection("notifications").add(mock2).await()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            val mock2 = mapOf(
+                "userId" to userId,
+                "title" to "Maintenance Announcement",
+                "message" to "Please note that lift maintenance in Block B is scheduled for tomorrow between 10 AM and 1 PM.",
+                "isRead" to false,
+                "timestamp" to System.currentTimeMillis() - 3600000 // 1 hour ago
+            )
+            firestore.collection("notifications").add(mock2).await()
+        }
     }
 
     // Storage
